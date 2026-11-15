@@ -16,9 +16,15 @@ namespace DiGiorgioLabs.NeuralNetVR.Core
 
         public static Material CreateDefaultEmissiveMaterial(string name)
         {
-            Shader shader = Shader.Find("Universal Render Pipeline/Lit")
-                            ?? Shader.Find("Standard")
-                            ?? Shader.Find("Unlit/Color");
+            Shader shader = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline != null
+                ? Shader.Find("Universal Render Pipeline/Lit")
+                : Shader.Find("Standard");
+            if (shader == null)
+            {
+                var tmp = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                shader = tmp.GetComponent<Renderer>().sharedMaterial.shader;
+                Object.DestroyImmediate(tmp);
+            }
 
             var mat = new Material(shader) { name = name };
             mat.EnableKeyword("_EMISSION");
